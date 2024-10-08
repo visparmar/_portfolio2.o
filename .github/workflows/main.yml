@@ -20,9 +20,11 @@ jobs:
         node-version: '21'
 
     - name: Install dependencies
+      working-directory: ./_portfolio2.o
       run: npm install
 
     - name: Build
+      working-directory: ./_portfolio2.o
       run: npm run build
 
     - name: Deploy to S3
