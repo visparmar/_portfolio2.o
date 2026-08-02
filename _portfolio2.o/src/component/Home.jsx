@@ -28,7 +28,7 @@ const Home = () => {
 
     {/* Call to Action */}
     <div className="mt-8">
-      <button className="px-8 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-500 transition">
+      <button className="px-8 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-500 transition" >
         Resume
       </button>
     </div>
