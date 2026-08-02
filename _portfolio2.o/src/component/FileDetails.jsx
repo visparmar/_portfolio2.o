@@ -46,6 +46,7 @@ const installedExtensionList = [
 
 
 const FileDetails = () => {
+    // eslint-disable-next-line no-unused-vars
     const { openFile, setOpenFile } = useContext(FileContext)
     const [filesStatus, setFileStatus] = useState({
         mainStatus: true,
