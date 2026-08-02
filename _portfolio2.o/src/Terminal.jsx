@@ -111,6 +111,7 @@ https://linkedin.com/in/yourusername`,
 
 }
 
+// eslint-disable-next-line react/prop-types
 export const Terminal = ({ terminalHeight, setTerminalHeight }) => {
     // const [height, setHeight] = useState(180);
     const [isDragging, setIsDragging] = useState(false);
