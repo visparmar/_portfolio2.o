@@ -114,6 +114,7 @@ https://linkedin.com/in/yourusername`,
 export const Terminal = ({ terminalHeight, setTerminalHeight }) => {
     // const [height, setHeight] = useState(180);
     const [isDragging, setIsDragging] = useState(false);
+    const [activeTerminalProfile, setTerminalProfile] = useState("terminal");
 
     const [history, setHistory] = useState([
         {
@@ -166,6 +167,33 @@ Type 'help' to see available commands.`,
 
     }, [isDragging])
 
+    let terminalProfile = [
+        {
+         key: "problems",
+         value: "PROBLEMS"
+    },
+    {
+         key: "output",
+         value: "OUTPUT"
+    },
+    {
+         key: "debug_console",
+         value: "DEBUG CONSOLE"
+    },
+    {
+         key: "terminal",
+         value: "TERMINAL"
+    },
+    {
+         key: "gitlense",
+         value: "GITLENS"
+    },
+]
+
+    const handleSetTerminalProfile = (e) => {
+        setTerminalProfile(e.currentTarget.id)
+    }
+
     return (
         <div style={{
             height: `${terminalHeight}px`
@@ -180,12 +208,14 @@ Type 'help' to see available commands.`,
 
                 {/* Terminal tabs */}
                 <div className="border-gray-700 border-t bg-[#1E1E1E] py-2 flex gap-4 px-4 ">
-                    {["PROBLEMS", "OUTPUT", "DEBUG CONSOLE", "TERMINAL", "GITLENS"].map((item) => (
+                    {terminalProfile.map((item) => (
                         <span
-                            className="text-gray-400 text-sm cursor-pointer"
-                            key={item}
+                            className={`text-gray-400 text-sm cursor-pointer  ${activeTerminalProfile ==  item.key ? 'border-b-2 border-b-blue-600' : ''} `}
+                            onClick= {handleSetTerminalProfile}
+                            id= {item.key}
+                            key={item.key}
                         >
-                            {item}
+                            {item.value}
                         </span>
                     ))}
                 </div>

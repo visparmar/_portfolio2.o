@@ -3,12 +3,6 @@ import React from 'react';
 const Services = () => {
   return (
     <div className="min-h-screen  flex pt-10">
-      <div className='flex flex-col gap-2 px-6'>
-        {
-          Array.from({ length: 30 }).map((_, index) => <span key={index} className='text-[#868686]'>{index + 1}</span>)
-
-        }
-      </div>
       {/* Header */}
 
       <div className='w-full flex flex-col items-center'>

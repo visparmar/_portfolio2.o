@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { ImFilesEmpty } from "react-icons/im";
 import { IoIosArrowForward } from "react-icons/io";
@@ -20,26 +20,81 @@ import { RiTailwindCssFill } from "react-icons/ri";
 import { SiEslint, SiPrettier } from "react-icons/si";
 
 const installedExtensionList = [
-  {
-    icon: FaReact,
-    name: "React",
-    text: "JavaScript library for building user interfaces.",
-  },
-  {
-    icon: RiTailwindCssFill,
-    name: "Tailwind CSS",
-    text: "Utility-first CSS framework for rapid UI development.",
-  },
-  {
-    icon: SiEslint,
-    name: "ESLint",
-    text: "Finds and fixes problems in your JavaScript and TypeScript code.",
-  },
-  {
-    icon: SiPrettier,
-    name: "Prettier",
-    text: "Opinionated code formatter for consistent code style.",
-  },
+    {
+        icon: FaReact,
+        name: "React",
+        text: "JavaScript library for building user interfaces.",
+    },
+    {
+        icon: RiTailwindCssFill,
+        name: "Tailwind CSS",
+        text: "Utility-first CSS framework for rapid UI development.",
+    },
+    {
+        icon: SiEslint,
+        name: "ESLint",
+        text: "Finds and fixes problems in your JavaScript and TypeScript code.",
+    },
+    {
+        icon: SiPrettier,
+        name: "Prettier",
+        text: "Opinionated code formatter for consistent code style.",
+    },
+];
+
+const searchableFiles = [
+    {
+        file: "Home.jsx",
+        path: "/",
+        content: `
+      Home frontend developer portfolio React JavaScript
+      Welcome to my portfolio. I build modern responsive websites.
+    `,
+    },
+    {
+        file: "About.jsx",
+        path: "about",
+        content: `
+      About me frontend developer React JavaScript
+      I am a passionate developer who builds modern web applications.
+    `,
+    },
+    {
+        file: "Services.jsx",
+        path: "services",
+        content: `
+      Services web development frontend development React
+      Responsive websites UI development JavaScript applications
+    `,
+    },
+    {
+        file: "Contact.jsx",
+        path: "contact",
+        content: `
+      Contact email developer freelance React JavaScript
+      Get in touch with me for web development projects.
+    `,
+    },
+    //   {
+    //     file: ".gitignore",
+    //     path: null,
+    //     content: "node_modules dist",
+    //   },
+    //   {
+    //     file: "index.html",
+    //     path: null,
+    //     content: "React portfolio application",
+    //   },
+    //   {
+    //     file: "package-lock.json",
+    //     path: null,
+    //     content: "react react-dom react-router-dom",
+    //   },
+    //   {
+    //     file: "README.md",
+    //     path: null,
+    //     content: "portfolio frontend developer React JavaScript",
+    //   },
 ];
 
 
@@ -47,6 +102,10 @@ const installedExtensionList = [
 
 const FileDetails = () => {
     const { openFile, setOpenFile } = useContext(FileContext)
+    // eslint-disable-next-line no-unused-vars
+    const [searchData, setSearchData] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [sidBarWidth, setSideBarWidth] = useState(200)
     const [filesStatus, setFileStatus] = useState({
         mainStatus: true,
         src: true,
@@ -61,9 +120,19 @@ const FileDetails = () => {
         }));
     };
     const [installedExtensions, setInstalledExtensions] = useState(false);
+
     const handleFiles = (e) => {
         const { id } = e.target
         const content = e.target.textContent;
+        setOpenFile((prev) => ({
+            ...prev,
+            [id]: content
+        }))
+    }
+
+    const handleFilesInSearch = (e) => {
+        const { id } = e.currentTarget
+        const content = e.currentTarget.dataset.file;
         setOpenFile((prev) => ({
             ...prev,
             [id]: content
@@ -76,40 +145,93 @@ const FileDetails = () => {
         if (!item) return;
 
         setSidebar(item.dataset.item)
-        console.log(item.dataset.item);
     };
+
+    const handleFileSearch = (e) => {
+
+        let value = e.target.value;
+
+        const results = searchableFiles
+            .map((item) => {
+                const matchedLines = item.content.split("\n").map((line, index) => ({
+                    line: line.trim(),
+                    lineNumber: index + 1,
+                })).filter((item) =>
+                    item.line.toLowerCase().includes(value.toLowerCase())
+                );
+
+                if (matchedLines.length > 0) {
+                    return {
+                        ...item,
+                        matches: matchedLines,
+                    };
+                }
+
+                return null;
+            }).filter(Boolean);
+        // console.log(value)
+        setSearchData(results)
+        // searchableFiles
+    }
+
+    const handleMouseMove = (e) => {
+        const newWidth = e.clientX - 65;
+
+        // console.log(window.innerWidth, e.clientX)
+
+        if (newWidth >= 190 && newWidth <= 1000) {
+            setSideBarWidth(newWidth);
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, [isDragging]);
+
 
     return (
         <div className='flex'>
-            <div className="text-3xl  flex flex-col  justify-between gap-4  h-full bg-[#181818] border border-[#2B2B2B]">
+            <div className="text-3xl flex flex-col  justify-between gap-4  h-full bg-[#181818] border border-[#2B2B2B]">
                 <div
                     className="flex flex-col gap-6"
                     onClick={handleChangeSideBar}
                 >
                     <div
                         data-item="files"
-                        className={`w-full px-4 py-4 ${ sideBar === 'files' ? 'border-[#42a7f5] border-l-2' : ''}  cursor-pointer`}
+                        className={`w-full px-4 py-4 ${sideBar === 'files' ? 'border-[#42a7f5] border-l-2' : ''}  cursor-pointer`}
                     >
                         <ImFilesEmpty />
                     </div>
 
                     <div
                         data-item="search"
-                        className={`w-full px-4 py-2 ${ sideBar === 'search' ? 'border-[#42a7f5] border-l-2' : ''}  text-[#868686] cursor-pointer`}
+                        className={`w-full px-4 py-2 ${sideBar === 'search' ? 'border-[#42a7f5] border-l-2' : ''}  text-[#868686] cursor-pointer`}
                     >
                         <LiaSearchSolid />
                     </div>
 
                     <div
                         data-item="debug"
-                        className={`w-full px-4 py-2 ${ sideBar === 'debug' ? 'border-[#42a7f5] border-l-2' : ''}  text-[#868686] cursor-pointer`}
+                        className={`w-full px-4 py-2 ${sideBar === 'debug' ? 'border-[#42a7f5] border-l-2' : ''}  text-[#868686] cursor-pointer`}
                     >
                         <VscDebugAlt />
                     </div>
 
                     <div
                         data-item="extensions"
-                        className={`w-full px-4 ${ sideBar === 'extensions' ? 'border-[#42a7f5] border-l-2' : ''}  py-2 text-[#868686] cursor-pointer`}
+                        className={`w-full px-4 ${sideBar === 'extensions' ? 'border-[#42a7f5] border-l-2' : ''}  py-2 text-[#868686] cursor-pointer`}
                     >
                         <VscExtensions />
                     </div>
@@ -121,7 +243,9 @@ const FileDetails = () => {
 
             {/* Main content with directory structure */}
 
-            <div className="flex flex-col px-4 bg-[#181818] border border-[#2B2B2B] gap-2 pt-3">
+            <div
+            style={{width: `${sidBarWidth}px`}}
+             className="flex flex-col px-4 bg-[#181818] border border-[#2B2B2B] gap-2 pt-3">
 
                 {sideBar === 'files' && <div>
                     {/* Portfolio heading */}
@@ -165,13 +289,25 @@ const FileDetails = () => {
                                         <FaReact className='text-blue-400' />
                                         <span><Link to="/about" id='about' onClick={handleFiles}>About.jsx</Link></span>
                                     </span>
-                                    <span className='flex  items-center gap-1'>
+                                    {/* <span className='flex  items-center gap-1'>
                                         <FaReact className='text-blue-400' />
                                         <span><Link to="/services" id='services' onClick={handleFiles}>Services.jsx</Link></span>
-                                    </span>
+                                    </span> */}
                                     <span className='flex  items-center gap-1'>
                                         <FaReact className='text-blue-400' />
                                         <span><Link to="/contact" id='contact' onClick={handleFiles}>Contact.jsx</Link></span>
+                                    </span>
+                                    <span className='flex  items-center gap-1'>
+                                        <FaReact className='text-blue-400' />
+                                        <span><Link to="/experience" id='experience' onClick={handleFiles}>Experience.jsx</Link></span>
+                                    </span>
+                                    <span className='flex  items-center gap-1'>
+                                        <FaReact className='text-blue-400' />
+                                        <span><Link to="/skills" id='skills' onClick={handleFiles}>Skills.jsx</Link></span>
+                                    </span>
+                                    <span className='flex  items-center gap-1'>
+                                        <FaReact className='text-blue-400' />
+                                        <span><Link to="/projects" id='projects' onClick={handleFiles}>Projects.jsx</Link></span>
                                     </span>
                                 </div>}
                             </li>
@@ -196,14 +332,50 @@ const FileDetails = () => {
                 </div>
                 }
 
+                {
+                    sideBar === 'search' &&
+                    <div className='h-full w-full'>
+                        <span className='block mb-5'>Search</span>
+                        <input onChange={handleFileSearch} placeholder='Search' className='bg-gray-800 p-1 border-1 outline-none border-gray-300' />
+
+
+                        {/* File list */}
+                        {searchData.map((file) => (
+                            <Link key={file.file} to={file.path} id={file.path} data-file={file.file} onClick={handleFilesInSearch} >
+                                <div className='cursor-pointer' >
+                                    <div className="font-medium">
+                                        {/* {file.file} */}
+                                        <span>{file.file}</span>
+                                    </div>
+
+                                    {file.matches.map((match) => (
+                                        <div
+                                            key={match.lineNumber}
+                                            className="ml-4 text-sm text-gray-400"
+                                        >
+                                            {/* <span className="mr-3 text-gray-600">
+                                                {match.lineNumber}
+                                            </span> */}
+
+                                            <span>-</span>{match.line}
+                                        </div>
+                                    ))}
+                                </div>
+                            </Link>
+
+                        ))}
+
+                    </div>
+                }
+
                 {sideBar === 'extensions' &&
                     <div>
                         <p className="flex items-center gap-2">EXTENSIONS</p>
-                        <input className='bg-gray-500 px-2 outline-none ' 
-                        placeholder='Search Extension In MarketPlace' />
-                        <p className='text-sm flex gap-2 py-2 items-center' 
-                        onClick={() => setInstalledExtensions(!installedExtensions)}>
-                            {installedExtensions ? <FaAngleDown /> : <FaAngleRight/>}   
+                        <input className='bg-gray-500 px-2 outline-none '
+                            placeholder='Search Extension In MarketPlace' />
+                        <p className='text-sm flex gap-2 py-2 items-center'
+                            onClick={() => setInstalledExtensions(!installedExtensions)}>
+                            {installedExtensions ? <FaAngleDown /> : <FaAngleRight />}
                             <span>INSTALLED</span>
                         </p>
 
@@ -238,8 +410,17 @@ const FileDetails = () => {
 
             </div>
 
-
-
+            {/* <div
+                onMouseDown={() => setIsDragging(true)}
+                className="h-full w-[5px] cursor-col-resize hover:bg-blue-500"
+            /> */}
+            <div
+                onMouseDown={() => setIsDragging(true)}
+                className={`h-full w-[5px] flex-shrink-0 cursor-col-resize transition-colors ${isDragging
+                        ? "bg-blue-500"
+                        : "hover:bg-blue-500"
+                    }`}
+/>
         </div>
     )
 }
