@@ -5,11 +5,21 @@ import FileContext from "./context/FileContext"
 import { useContext, useState } from 'react';
 import { FaReact } from 'react-icons/fa';
 import { Terminal } from './Terminal';
+import TerminalLoader from './Loader';
 
 
 function Layout() {
+    const [loading, setLoading] = useState(true);
     const { openFile, setOpenFile } = useContext(FileContext)
     const [terminalHeight, setTerminalHeight] = useState(180)
+
+      if (loading) {
+        return (
+            <TerminalLoader
+                onComplete={() => setLoading(false)}
+            />
+        );
+    }
     console.log(openFile)
     const deleteFileFromTopBar = (key) => {
         const updatedPerson = { ...openFile }; // Create a shallow copy
